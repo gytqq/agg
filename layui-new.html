@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>new</title>
+    <link rel="stylesheet" type="text/css" href="./layui/css/layui.css">
+    <script src="./layui/layui.js"></script>
+  
+    <script>
+layui.use('element', function(){
+  var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
+  
+  //监听导航点击
+  element.on('nav(demo)', function(elem){
+    //console.log(elem)
+    layer.msg(elem.text());
+  });
+});
+
+    layui.use(['carousel', 'form'], function(){
+      var carousel = layui.carousel
+      ,form = layui.form;
+      
+      //常规轮播
+      carousel.render({
+        elem: '#test1'
+        ,arrow: 'always'
+      });
+      
+      //改变下时间间隔、动画类型、高度
+      carousel.render({
+        elem: '#test2'
+        ,interval: 1800
+        ,anim: 'fade'
+        ,height: '120px'
+      });
+      
+      //设定各种参数
+      var ins3 = carousel.render({
+        elem: '#test3'
+      });
+      //图片轮播
+      carousel.render({
+        elem: '#test10'
+        ,width: '778px'
+        ,height: '440px'
+        ,interval: 5000
+      });
+      
+      //事件
+      carousel.on('change(test4)', function(res){
+        console.log(res)
+      });
+      
+      var $ = layui.$, active = {
+        set: function(othis){
+          var THIS = 'layui-bg-normal'
+          ,key = othis.data('key')
+          ,options = {};
+          
+          othis.css('background-color', '#5FB878').siblings().removeAttr('style'); 
+          options[key] = othis.data('value');
+          ins3.reload(options);
+        }
+      };
+      
+      //监听开关
+      form.on('switch(autoplay)', function(){
+        ins3.reload({
+          autoplay: this.checked
+        });
+      });
+      
+      $('.demoSet').on('keyup', function(){
+        var value = this.value
+        ,options = {};
+        if(!/^\d+$/.test(value)) return;
+        
+        options[this.name] = value;
+        ins3.reload(options);
+      });
+      
+      //其它示例
+      $('.demoTest .layui-btn').on('click', function(){
+        var othis = $(this), type = othis.data('type');
+        active[type] ? active[type].call(this, othis) : '';
+      });
+    });
+
+
+    layui.use('layer', function(){ //独立版的layer无需执行这一句
+  var $ = layui.jquery, layer = layui.layer; //独立版的layer无需执行这一句
+  
+  //触发事件
+  var active = {
+    setTop: function(){
+      var that = this; 
+      //多窗口模式，层叠置顶
+      layer.open({
+        type: 2 //此处以iframe举例
+        ,title: '当你选择该窗体时，即会在最顶端'
+        ,area: ['390px', '260px']
+        ,shade: 0
+        ,maxmin: true
+        ,offset: [ //为了演示，随机坐标
+          Math.random()*($(window).height()-300)
+          ,Math.random()*($(window).width()-390)
+        ] 
+        ,content: '//layer.layui.com/test/settop.html'
+        ,btn: ['继续弹出', '全部关闭'] //只是为了演示
+        ,yes: function(){
+          $(that).click(); 
+        }
+        ,btn2: function(){
+          layer.closeAll();
+        }
+        
+        ,zIndex: layer.zIndex //重点1
+        ,success: function(layero){
+          layer.setTop(layero); //重点2
+        }
+      });
+    }
+    ,confirmTrans: function(){
+      //配置一个透明的询问框
+      layer.msg('大部分参数都是可以公用的<br>合理搭配，展示不一样的风格', {
+        time: 20000, //20s后自动关闭
+        btn: ['明白了', '知道了', '哦']
+      });
+    }
+    ,notice: function(){
+      //示范一个公告层
+      layer.open({
+        type: 1
+        ,title: false //不显示标题栏
+        ,closeBtn: false
+        ,area: '300px;'
+        ,shade: 0.8
+        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+        ,btn: ['火速围观', '残忍拒绝']
+        ,btnAlign: 'c'
+        ,moveType: 1 //拖拽模式，0或者1
+        ,content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">你知道吗？亲！<br>layer ≠ layui<br><br>layer只是作为Layui的一个弹层模块，由于其用户基数较大，所以常常会有人以为layui是layerui<br><br>layer虽然已被 Layui 收编为内置的弹层模块，但仍然会作为一个独立组件全力维护、升级。<br><br>我们此后的征途是星辰大海 ^_^</div>'
+        ,success: function(layero){
+          var btn = layero.find('.layui-layer-btn');
+          btn.find('.layui-layer-btn0').attr({
+            href: 'http://www.layui.com/'
+            ,target: '_blank'
+          });
+        }
+      });
+    }
+    ,offset: function(othis){
+      var type = othis.data('type')
+      ,text = othis.text();
+      
+      layer.open({
+        type: 1
+        ,offset: type //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
+        ,id: 'layerDemo'+type //防止重复弹出
+        ,content: '<div style="padding: 20px 100px;">'+ text +'</div>'
+        ,btn: '关闭全部'
+        ,btnAlign: 'c' //按钮居中
+        ,shade: 0 //不显示遮罩
+        ,yes: function(){
+          layer.closeAll();
+        }
+      });
+    }
+  };
+  
+  $('#layerDemo .layui-btn').on('click', function(){
+    var othis = $(this), method = othis.data('method');
+    active[method] ? active[method].call(this, othis) : '';
+  });
+  
+});
+    </script>
+</head>
+<body>
+    <ul class="layui-nav layui-bg-blue">
+        <li class="layui-nav-item"><a href="">艳蓝导航</a></li>
+        <li class="layui-nav-item"><a href="">产品</a></li>
+        <li class="layui-nav-item"><a href="">大数据</a></li>
+        <li class="layui-nav-item"><a href="">关于</a></li>
+        <li class="layui-nav-item">
+          <a href="javascript:;">解决方案</a>
+          <dl class="layui-nav-child">
+            <dd><a href="">移动模块</a></dd>
+            <dd><a href="">后台模版</a></dd>
+            <dd><a href="">电商平台</a></dd>
+          </dl>
+        </li>
+        <li class="layui-nav-item"><a href="">社区</a></li>
+      </ul> 
+
+      <div class="layui-tab" style="width: 500px; height:100px; border: 1px solid red; ">
+        <ul class="layui-tab-title">
+          <li class="layui-this">网站设置</li>
+          <li>用户管理</li>
+          <li>权限分配</li>
+          <li>商品管理</li>
+          <li>订单管理</li>
+        </ul>
+        <div class="layui-tab-content">
+          <div class="layui-tab-item layui-show" style="width: 200px; height:10px; ">
+            
+            <p>asdadasdasdasdasdasdwa</p>
+          </div>
+          <div class="layui-tab-item">内容2</div>
+          <div class="layui-tab-item">内容3</div>
+          <div class="layui-tab-item">内容4</div>
+          <div class="layui-tab-item">内容5</div>
+        </div>
+      </div>
+      <div class="layui-carousel" id="test1" lay-filter="test1">
+        <div carousel-item="">
+          <div><img src="./layui/img/bailu/5c74a090a4ffe.jpg"></div>
+          <div><img src="./layui/img/bailu/5c985b615e519.png"></div>
+          <div>条目3</div>
+          <div>条目4</div>
+          <div>条目5</div>
+        </div>
+      </div> 
+
+      <div class="site-demo-button" id="layerDemo" style="margin-bottom: 0;">
+        <blockquote class="layui-elem-quote layui-quote-nm">
+          Tips：为了更清晰演示，每触发下述一个例子之前，都会关闭所有已经演示的层
+        </blockquote>
+        <button data-method="setTop" class="layui-btn">多窗口模式，层叠置顶</button>
+        </div>
+</body>
+</html>
